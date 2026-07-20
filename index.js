@@ -64,6 +64,8 @@ axios.get("https://raw.githubusercontent.com/d-jukie/miraiv2/main/package.json")
     logger(res['data']['name'], "[ Bypass ]");
     logger("Version: " + res['data']['version'], "[ Phiên Bản ]");
     logger(res['data']['description'], "[ DESCRIPTION ]");
+}).catch((error) => {
+    logger("Failed to check for updates: " + (error && error.message || error), "[ Bypass ]");
 });
 
  const rainbow = chalk.rainbow(`
