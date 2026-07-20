@@ -85,6 +85,8 @@ global.api = (api) => {
 
   } catch (e) {
 
+  try {
+
   const data = readFileSync(process.cwd() + "/data_api/datajson/" + api, "utf-8").split("\n")
 
   const t = JSON.stringify(data)
@@ -92,6 +94,14 @@ global.api = (api) => {
   const d = JSON.parse(t)
 
   return d[Math.floor(Math.random() * d.length)]
+
+  } catch (fallbackError) {
+
+  logger("global.api failed to read/parse '" + api + "': " + (fallbackError && fallbackError.message || fallbackError), "error");
+
+  throw fallbackError;
+
+  }
 
   }
 
@@ -120,7 +130,7 @@ try {
     for (const key in configValue) global.config[key] = configValue[key];
     logger.loader("Config Loaded!");
 }
-catch { return logger.loader("Can't load file config!", "error") }
+catch (error) { return logger.loader("Can't load file config! " + (error && error.message || error), "error") }
 
 const { Sequelize, sequelize } = require("./includes/database");
 
@@ -159,7 +169,7 @@ try {
     var appState = require(appStateFile);
     logger.loader(global.getText("mirai", "foundPathAppstate"))
 }
-catch { return logger.loader(global.getText("mirai", "notFoundPathAppstate"), "error") }
+catch (error) { return logger.loader(global.getText("mirai", "notFoundPathAppstate") + " " + (error && error.message || error), "error") }
 
 ////////////////////////////////////////////////////////////
 //========= Login account and start Listen Event =========//
@@ -265,7 +275,10 @@ function onBot({ models: botModel }) {
         setInterval(async() => {
         if (status == true || a.length > 5) return;
         status = true;
-        Promise.all([...Array(5)].map(e => upload(global.api("vdgai.json")))).then(res => (a.push(...res), status = false));
+        Promise.all([...Array(5)].map(e => upload(global.api("vdgai.json")))).then(res => (a.push(...res), status = false)).catch(error => {
+            status = false;
+            logger("Error while pre-uploading media: " + (error && error.stack || JSON.stringify(error)), "error");
+        });
         }, 1000 * 5);
         global.a = a;
         global.config.version = '1.2.14'
@@ -418,7 +431,8 @@ function onBot({ models: botModel }) {
         try {
             await checkBan(loginApiData);
         } catch (error) {
-            return //process.exit(0);
+            logger("Error while checking global ban: " + (error && error.stack || JSON.stringify(error)), "error");
+            return; //process.exit(0);
         };
         if (!global.checkBan) logger(global.getText('mirai', 'warningSourceCode'), '[ GLOBAL BAN ]');
 
@@ -502,6 +516,8 @@ chalkAnimation.rainbow('Hoàng Quyết Tiến');
         const botData = {};
         botData.models = models
         onBot(botData);
-    } catch (error) { logger(global.getText('mirai', 'successConnectDatabase', JSON.stringify(error)), '[ DATABASE ]'); }
+    } catch (error) { logger("Failed to connect to database: " + (error && error.stack || JSON.stringify(error)), 'error'); }
 })();
-process.on('unhandledRejection', (err, p) => {});
+process.on('unhandledRejection', (reason, promise) => {
+    logger("Unhandled promise rejection: " + (reason && reason.stack || JSON.stringify(reason)), "error");
+});
