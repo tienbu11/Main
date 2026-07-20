@@ -33,7 +33,7 @@
     "PASSWORD": "",
     "OTPKEY": "",
     "BOTNAME": "Mirai",
-    "ACCESSTOKEN": "này",
+    "ACCESSTOKEN": "",
     "PREFIX": "₫",
     "ADMINBOT": [
         "61557545543030",
@@ -97,7 +97,7 @@
         "getDelay": 8
     },
     "math": {
-        "WOLFRAM": "T8J8YV-H265UQ762K"
+        "WOLFRAM": ""
     },
     "mine": {
         "APIKEY": ""
@@ -106,16 +106,16 @@
         "APIKEY": ""
     },
     "sim": {
-        "APIKEY": "chaoemnha"
+        "APIKEY": ""
     },
     "subnautica": {
         "APIKEY": ""
     },
     "video": {
-        "YOUTUBE_API": "AIzaSyC1HQ3HHQSzgXdvlm5vZ2gWX0Ubk8GYD-c"
+        "YOUTUBE_API": ""
     },
     "weather": {
-        "OPEN_WEATHER": "081c82065cfee62cb7988ddf90914bdd"
+        "OPEN_WEATHER": ""
     },
     "xidach": {
         "maxPlayers": 5,
@@ -146,26 +146,26 @@
         "cooldownTime": 60
     },
     "hunter": {
-        "userToken": "D7tTFhgD",
-        "adminToken": "ZkSy3UsT"
+        "userToken": "",
+        "adminToken": ""
     },
     "lixi": {
         "cooldownTime": 1200000
     },
     "lq1": {
-        "fb_token": "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662"
+        "fb_token": ""
     },
     "menu": {
         "autoUnsend": true,
         "delayUnsend": 60
     },
     "minecraft": {
-        "HYPIXEL_API": "2aaba24d-7fb5-4003-8bfb-d8458a9499a1"
+        "HYPIXEL_API": ""
     },
     "sub1": {
         "cooldownTime": 60000
     },
     "xedua": {
-        "key": "cuongngu"
+        "key": ""
     }
 }
