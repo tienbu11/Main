@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+nodemodules/
+
+# Secrets / credentials — DO NOT COMMIT
+.env
+.env.*
+acc.json
+appstate.json
+
+# Databases
+*.sqlite
+data.sqlite
+
+# Logs & caches
+*.log
+npm-debug.log*
+modules/commands/cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db

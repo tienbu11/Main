@@ -1,0 +1,30 @@
+[
+	{
+		"key": "c_user",
+		"value": "",
+		"domain": "facebook.com",
+		"path": "/",
+		"hostOnly": false
+	},
+	{
+		"key": "xs",
+		"value": "",
+		"domain": "facebook.com",
+		"path": "/",
+		"hostOnly": false
+	},
+	{
+		"key": "fr",
+		"value": "",
+		"domain": "facebook.com",
+		"path": "/",
+		"hostOnly": false
+	},
+	{
+		"key": "datr",
+		"value": "",
+		"domain": "facebook.com",
+		"path": "/",
+		"hostOnly": false
+	}
+]
