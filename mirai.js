@@ -10,6 +10,7 @@ const login = require("./@niio-team/fca-unofficial");
 const axios = require("axios");
 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies;
 const listbuiltinModules = require("module").builtinModules;
+const { loadDependencies, loadEnvConfig, callOnLoad } = require("./includes/moduleLoader")({ logger, listPackage, listbuiltinModules });
 
 global.thanhdz = new Object({
   altp_url: "https://apiuwuapi.ducdz999.repl.co/altp_data"
@@ -278,56 +279,9 @@ function onBot({ models: botModel }) {
                         if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('mirai', 'errorFormat'));
                         if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('mirai', 'nameExist'));
                         if (!module.languages || typeof module.languages != 'object' || Object.keys(module.languages).length == 0) logger.loader(global.getText('mirai', 'notFoundLanguage', module.config.name), 'warn');
-                        if (module.config.dependencies && typeof module.config.dependencies == 'object') {
-                            for (const reqDependencies in module.config.dependencies) {
-                                const reqDependenciesPath = join(__dirname, 'nodemodules', 'node_modules', reqDependencies);
-                                try {
-                                    if (!global.nodemodule.hasOwnProperty(reqDependencies)) {
-                                        if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global.nodemodule[reqDependencies] = require(reqDependencies);
-                                        else global.nodemodule[reqDependencies] = require(reqDependenciesPath);
-                                    } else '';
-                                } catch {
-                                    var check = false;
-                                    var isError;
-                                    logger.loader(global.getText('mirai', 'notFoundPackage', reqDependencies, module.config.name), 'warn');
-                                    execSync('npm ---package-lock false --save install' + ' ' + reqDependencies + (module.config.dependencies[reqDependencies] == '*' || module.config.dependencies[reqDependencies] == '' ? '' : '@' + module.config.dependencies[reqDependencies]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
-                                    for (let i = 1; i <= 3; i++) {
-                                        try {
-                                            require['cache'] = {};
-                                            if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global['nodemodule'][reqDependencies] = require(reqDependencies);
-                                            else global['nodemodule'][reqDependencies] = require(reqDependenciesPath);
-                                            check = true;
-                                            break;
-                                        } catch (error) { isError = error; }
-                                        if (check || !isError) break;
-                                    }
-                                    if (!check || isError) throw global.getText('mirai', 'cantInstallPackage', reqDependencies, module.config.name, isError);
-                                }
-                            }
-                            logger.loader(global.getText('mirai', 'loadedPackage', module.config.name));
-                        }
-                        if (module.config.envConfig) try {
-                            for (const envConfig in module.config.envConfig) {
-                                if (typeof global.configModule[module.config.name] == 'undefined') global.configModule[module.config.name] = {};
-                                if (typeof global.config[module.config.name] == 'undefined') global.config[module.config.name] = {};
-                                if (typeof global.config[module.config.name][envConfig] !== 'undefined') global['configModule'][module.config.name][envConfig] = global.config[module.config.name][envConfig];
-                                else global.configModule[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
-                                if (typeof global.config[module.config.name][envConfig] == 'undefined') global.config[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
-                            }
-                            logger.loader(global.getText('mirai', 'loadedConfig', module.config.name));
-                        } catch (error) {
-                            throw new Error(global.getText('mirai', 'loadedConfig', module.config.name, JSON.stringify(error)));
-                        }
-                        if (module.onLoad) {
-                            try {
-                                const moduleData = {};
-                                moduleData.api = loginApiData;
-                                moduleData.models = botModel;
-                                module.onLoad(moduleData);
-                            } catch (_0x20fd5f) {
-                                throw new Error(global.getText('mirai', 'cantOnload', module.config.name, JSON.stringify(_0x20fd5f)), 'error');
-                            };
-                        }
+                        loadDependencies(module);
+                        loadEnvConfig(module);
+                        callOnLoad(module, loginApiData, botModel);
                         if (module.handleEvent) global.client.eventRegistered.push(module.config.name);
                         global.client.commands.set(module.config.name, module);
                         logger.loader(global.getText('mirai', 'successLoadModule', module.config.name));
@@ -343,54 +297,9 @@ function onBot({ models: botModel }) {
                         var event = require(global.client.mainPath + '/modules/events/' + ev);
                         if (!event.config || !event.run) throw new Error(global.getText('mirai', 'errorFormat'));
                         if (global.client.events.has(event.config.name) || '') throw new Error(global.getText('mirai', 'nameExist'));
-                        if (event.config.dependencies && typeof event.config.dependencies == 'object') {
-                            for (const dependency in event.config.dependencies) {
-                                const _0x21abed = join(__dirname, 'nodemodules', 'node_modules', dependency);
-                                try {
-                                    if (!global.nodemodule.hasOwnProperty(dependency)) {
-                                        if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
-                                        else global.nodemodule[dependency] = require(_0x21abed);
-                                    } else '';
-                                } catch {
-                                    let check = false;
-                                    let isError;
-                                    logger.loader(global.getText('mirai', 'notFoundPackage', dependency, event.config.name), 'warn');
-                                    execSync('npm --package-lock false --save install' + dependency + (event.config.dependencies[dependency] == '*' || event.config.dependencies[dependency] == '' ? '' : '@' + event.config.dependencies[dependency]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
-                                    for (let i = 1; i <= 3; i++) {
-                                        try {
-                                            require['cache'] = {};
-                                            if (global.nodemodule.includes(dependency)) break;
-                                            if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
-                                            else global.nodemodule[dependency] = require(_0x21abed);
-                                            check = true;
-                                            break;
-                                        } catch (error) { isError = error; }
-                                        if (check || !isError) break;
-                                    }
-                                    if (!check || isError) throw global.getText('mirai', 'cantInstallPackage', dependency, event.config.name);
-                                }
-                            }
-                            logger.loader(global.getText('mirai', 'loadedPackage', event.config.name));
-                        }
-                        if (event.config.envConfig) try {
-                            for (const _0x5beea0 in event.config.envConfig) {
-                                if (typeof global.configModule[event.config.name] == 'undefined') global.configModule[event.config.name] = {};
-                                if (typeof global.config[event.config.name] == 'undefined') global.config[event.config.name] = {};
-                                if (typeof global.config[event.config.name][_0x5beea0] !== 'undefined') global.configModule[event.config.name][_0x5beea0] = global.config[event.config.name][_0x5beea0];
-                                else global.configModule[event.config.name][_0x5beea0] = event.config.envConfig[_0x5beea0] || '';
-                                if (typeof global.config[event.config.name][_0x5beea0] == 'undefined') global.config[event.config.name][_0x5beea0] = event.config.envConfig[_0x5beea0] || '';
-                            }
-                            logger.loader(global.getText('mirai', 'loadedConfig', event.config.name));
-                        } catch (error) {
-                            throw new Error(global.getText('mirai', 'loadedConfig', event.config.name, JSON.stringify(error)));
-                        }
-                        if (event.onLoad) try {
-                            const eventData = {};
-                            eventData.api = loginApiData, eventData.models = botModel;
-                            event.onLoad(eventData);
-                        } catch (error) {
-                            throw new Error(global.getText('mirai', 'cantOnload', event.config.name, JSON.stringify(error)), 'error');
-                        }
+                        loadDependencies(event);
+                        loadEnvConfig(event);
+                        callOnLoad(event, loginApiData, botModel);
                         global.client.events.set(event.config.name, event);
                         logger.loader(global.getText('mirai', 'successLoadModule', event.config.name));
                     } catch (error) {
